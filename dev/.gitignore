@@ -1,4 +1,5 @@
-data
+midi-data
 venv
+videos
 
 **/*.env

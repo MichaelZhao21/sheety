@@ -26,7 +26,7 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
         count += 1
 
         px = image[image.shape[0] - 30, 30]
-        if np.mean(px) < 100:
+        if np.mean(px) < 200:
             continue
         col = np.mean(px)
         if col == rgb_list[0] and col == rgb_list[1] and col == rgb_list[2] and col == rgb_list[3] and col == rgb_list[4]:
@@ -43,11 +43,15 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
     if final is None:
         raise Exception("Could not find the start of the video")
     
+    final = cv2.GaussianBlur(final, (5, 5), 0)
+    
     # FIGURE OUT WHERE PIANO IS
     col = np.mean(final[10][10])
     i = image.shape[0] // 2
     while abs(np.mean(final[i][10]) - col) < 10:
         i += 1
+        if i >= image.shape[0]:
+            raise Exception("Could not find the piano")
     print("PIANO TOP AT:", i)
 
     # Figure out line 2
@@ -61,8 +65,8 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
     colortracker = 0
     indexofchange = 0
 
-    while indexacross < 1920:
-        bar = image[890, indexacross]
+    while indexacross < image.shape[1]:
+        bar = image[y, indexacross]
         indexacross += 1
         averagergbval = np.mean(bar)
 
@@ -76,7 +80,7 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
                 indexofchange = indexacross
                 trackchanges.append(indexofchange)
                 colortracker = 1
-                
+
     breaks = [(b, i % 2 == 0) for i, b in enumerate(trackchanges)]
     noteas = []
     start = 1
@@ -89,6 +93,8 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
 
     jns = ''.join(map(lambda x: x[1], noteas))
     oct = jns.find('WBWBWWBWBWBW')
+    if oct == -1:
+        raise Exception("Could not find the octaves")
     octaves = [noteas[0:oct]]
 
     while oct < len(jns):

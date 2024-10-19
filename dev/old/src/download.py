@@ -24,6 +24,7 @@ def download_video(url: str) -> str:
 
             # Get the tempo
             mnotes_url = extract_mnotes_url(description)
+            print("mnotes_url: ", mnotes_url)
             tempo = 100
             if mnotes_url:
                 mnotes_page = get_webpage('https://' + mnotes_url)

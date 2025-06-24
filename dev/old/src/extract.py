@@ -26,7 +26,10 @@ def extract_notes(file_path, bpm=100, max_seconds=30):
         count += 1
 
         px = image[image.shape[0] - 30, 30]
+        px2 = image[image.shape[0] // 2, 30]
         if np.mean(px) < 200:
+            continue
+        if np.mean(px2) > 200:
             continue
         col = np.mean(px)
         if col == rgb_list[0] and col == rgb_list[1] and col == rgb_list[2] and col == rgb_list[3] and col == rgb_list[4]:
